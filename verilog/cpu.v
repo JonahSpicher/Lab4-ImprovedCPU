@@ -25,14 +25,12 @@ wire[15:0] IMM;
 
 // from LUT
 wire JR_CTRL;
-wire J_CTRL;
+wire J_CTRL, R_CTRL, I_CTRL;
 wire BEQ;
 wire BNE;
 wire JL;
-wire R_;
 wire WREN;
 wire[2:0] ALU_CTRL;
-wire I_;
 wire MEMWREN;
 wire MEMTOREG;
 
@@ -42,19 +40,27 @@ wire[31:0] IMM_SE;
 wire ZERO;
 wire overflow;
 wire C_OUT;
-wire [31:0] instr;
 
-instructPart instruct(.instructionCode (PC), .rt (RT), .enable (1'b1), .Clk (clk),
-                      .imm_se (IMM_SE), .zero (ZERO), .MemWren (MEMWREN), .beq (BEQ),
-                      .bne (BNE), .jctrl (J_CTRL), .jr_ctrl (JR_CTRL), .jl (JL), .jr (JR), .actual_instruct (instr), .reset(reset));
+wire [31:0] memIn, memAddr;
+
+//from memory
+wire [31:0] instr;
+wire [31:0] memOut;
+
+memory Mem(.PC({PC[29:0], 2'b0}), .instruction(instr), .data_out(memOut), .data_in(memIn), .data_addr(memAddr), .clk(clk), .wr_en(MEMWREN));
+
+instructPart instruct(.ProgramCounter (PC), .rt (RT), .enable (1'b1), .Clk (clk),
+                      .imm_se (IMM_SE), .zero (ZERO), .beq (BEQ),
+                      .bne (BNE), .jctrl (J_CTRL), .jr_ctrl (JR_CTRL), .jl (JL), .jr (JR), .instruct (instr), .reset(reset));
 
 LUT lut(.jrctrl (JR_CTRL), .Jctrl (J_CTRL), .beq (BEQ), .bne (BNE), .jl (JL),
-        .Rctrl (R_), .Wren (WREN), .ALUctrl (ALU_CTRL), .Ictrl (I_), .MemWren (MEMWREN),
+        .Rctrl (R_CTRL), .Wren (WREN), .ALUctrl (ALU_CTRL), .Ictrl (I_CTRL), .MemWren (MEMWREN),
         .MemtoReg (MEMTOREG), .OP (instr[31:26]), .FUNCT (instr[5:0]));
 
 datapath DP(.A_data (JR), .imm_se (IMM_SE), .zero (ZERO), .c_out (C_OUT), .ofl (overflow),
-            .instr(instr), .rt (RT), .rs (instr[25:21]), .rd (instr[15:11]), .Wren (WREN), .R_command (R_),
-            .I_command (I_), .jl (JL), .ALUctrl (ALU_CTRL), .imm (instr[15:0]), .MemWr (MEMWREN),
-            .PC (PC), .MemtoReg (MEMTOREG), .clk (clk), .reset(reset));
+            .B_data (memIn), .res(memAddr), .rt (RT), .rs (instr[25:21]),
+            .rd (instr[15:11]), .Wren (WREN), .R_command (R_CTRL), .I_command (I_CTRL),
+            .jl (JL), .ALUctrl (ALU_CTRL), .imm (instr[15:0]),
+            .PC (PC), .MemtoReg (MEMTOREG), .memOut(memOut), .clk (clk), .reset(reset));
 
 endmodule

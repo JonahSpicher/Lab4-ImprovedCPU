@@ -46,7 +46,7 @@ module cpu_test ();
 
 
 
-      $readmemh("../asm-in-use/mult.dat", real_cpu.DP.DataMem.mem);
+      $readmemh("../asm-in-use/mult.dat", real_cpu.Mem.mem);
       $display("\nTest 1: Multiply (Basic arithmetic, branching, jumps)");
 
 
@@ -57,7 +57,7 @@ module cpu_test ();
         $display("Timed out, moving to next test");
       end
 
-      $readmemh("../asm-in-use/lcm.dat", real_cpu.DP.DataMem.mem);
+      $readmemh("../asm-in-use/lcm.dat", real_cpu.Mem.mem);
       //Assert reset pulse
       reset = 0; #1;
     	reset = 1; #5;
@@ -77,7 +77,7 @@ module cpu_test ();
 
 
 
-    $readmemh("../asm-in-use/exp.dat", real_cpu.DP.DataMem.mem);
+    $readmemh("../asm-in-use/exp.dat", real_cpu.Mem.mem);
     //Assert reset pulse
     start2 = 0;
     start3 = 1;
