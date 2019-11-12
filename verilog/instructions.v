@@ -16,6 +16,7 @@ module instructPart(
   input [31:0] instruct,
   input reset
 );
+// todo: Make it pipelined, get stall inputs 
 
 wire[31:0] intermediate; //intermediate wire
 

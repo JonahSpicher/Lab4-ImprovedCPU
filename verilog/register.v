@@ -44,6 +44,35 @@ end
 endgenerate
 endmodule
 
+module var_register
+#(parameter width = 32)
+(
+output reg [width-1:0] q,
+input [width-1:0] d,
+input wrenable,
+input clk,
+input reset
+);
+initial q = 0;
+
+generate
+genvar i;
+for (i = 0; i<width; i = i + 1)
+begin
+  always @(posedge clk)
+  begin
+      if(reset) begin
+        q <= 0;
+      end
+      else if(wrenable)
+      begin
+          q[i] <= d[i];
+      end
+  end
+end
+endgenerate
+endmodule
+
 module register32zero
 (
 output reg [31:0] q,
