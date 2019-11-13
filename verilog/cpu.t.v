@@ -39,15 +39,17 @@ module cpu_test ();
     // Test sequence
     initial begin
       $display("\n\nDevice: CPU");
-      // $dumpfile("cpu.vcd");
-      // $dumpvars();
+      $dumpfile("cpu.vcd");
+      $dumpvars();
 
 
 
 
 
-      $readmemh("../asm-in-use/mult.dat", real_cpu.Mem.mem);
-      $display("\nTest 1: Multiply (Basic arithmetic, branching, jumps)");
+      //$readmemh("../asm-in-use/mult.dat", real_cpu.Mem.mem);
+      $readmemh("../randomInstr.dat", real_cpu.Mem.mem);
+      //$display("\nTest 1: Multiply (Basic arithmetic, branching, jumps)");
+      $display("Just running some stuff actually");
 
 
 

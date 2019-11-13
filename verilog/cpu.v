@@ -51,8 +51,9 @@ wire [31:0] memIn, memAddr;
 //from memory
 wire [31:0] instr;
 wire [31:0] memOut;
+wire MEMWREN_ready;
 
-memory Mem(.PC({PC[29:0], 2'b0}), .instruction(instr), .data_out(memOut), .data_in(memIn), .data_addr(memAddr), .clk(clk), .wr_en(MEMWREN));
+memory Mem(.PC({PC[29:0], 2'b0}), .instruction(instr), .data_out(memOut), .data_in(memIn), .data_addr(memAddr), .clk(clk), .wr_en(MEMWREN_ready));
 
 instructPart instruct(.ProgramCounter (PC), .rt (RT), .enable (1'b1), .Clk (clk),
                       .imm_se (IMM_SE), .zero (ZERO), .beq (BEQ),
@@ -62,14 +63,23 @@ LUT lut(.jrctrl (JR_CTRL), .Jctrl (J_CTRL), .beq (BEQ), .bne (BNE), .jl (JL),
         .Rctrl (R_CTRL), .Wren (WREN), .ALUctrl (ALU_CTRL), .Ictrl (I_CTRL), .MemWren (MEMWREN),
         .MemtoReg (MEMTOREG), .OP (instr[31:26]), .FUNCT (instr[5:0]));
 
+
+wire [4:0] RT_ready, RS_ready, RD_ready, RT1;
+wire WREN_ready, R_CTRL_ready, I_CTRL_ready, JL_ready, MEMTOREG_ready;
+wire [15:0] imm_ready;
+wire [2:0] ALU_CTRL_ready;
+wire [31:0] PC_ready;
 datapath DP(.A_data (JR), .imm_se (IMM_SE), .zero (ZERO), .c_out (C_OUT), .ofl (overflow),
-            .memIn (memIn), .res(memAddr), .rt (RT), .rs (instr[25:21]),
-            .rd (instr[15:11]), .Wren (WREN), .R_command (R_CTRL), .I_command (I_CTRL),
-            .jl (JL), .ALUctrl (ALU_CTRL), .imm (instr[15:0]),
-            .PC (PC), .MemtoReg (MEMTOREG), .memOut(memOut), .clk (clk), .reset(reset));
+            .memIn (memIn), .res (memAddr), .rt (RT1), .rt_write (RT_ready), .rs (RS_ready),
+            .rd (RD_ready), .Wren (WREN_ready), .R_command (R_CTRL_ready), .I_command (I_CTRL_ready),
+            .jl (JL_ready), .ALUctrl (ALU_CTRL_ready), .imm (imm_ready),
+            .PC (PC_ready), .MemtoReg (MEMTOREG_ready), .memOut (memOut), .clk (clk), .reset(reset));
 
+
+reg_bank pipes(.PC_ready(PC_ready), .RS_ready(RS_ready), .RT_1(RT1), .RT_ready(RT_ready), .RD_ready(RD_ready), .imm_ready(imm_ready), .Wren_ready(WREN_ready), .ALU_ctrl_ready(ALU_CTRL_ready),
+              .MemtoReg_ready(MEMTOREG_ready), .MemWren_ready(MEMWREN_ready), .I_CTRL_ready(I_CTRL_ready), .R_CTRL_ready(R_CTRL_ready), .JL_ready(JL_ready), .PC(PC), .RS(instr[25:21]), .RT(RT), .RD(instr[15:11]), .imm(instr[15:0]),
+              .Wren(WREN), .ALU_ctrl(ALU_CTRL), .MemtoReg(MEMTOREG), .MemWren(MEMWREN), .I_CTRL(I_CTRL), .R_CTRL(R_CTRL), .JL(JL), .clk(clk), .reset(reset));
 endmodule
-
 module reg_bank(
   output [31:0] PC_ready,
   output [4:0] RS_ready,
@@ -81,6 +91,9 @@ module reg_bank(
   output [2:0] ALU_ctrl_ready,
   output MemtoReg_ready,
   output MemWren_ready,
+  output I_CTRL_ready,
+  output R_CTRL_ready,
+  output JL_ready,
   input [31:0] PC,
   input [4:0] RS,
   input [4:0] RT,
@@ -90,6 +103,9 @@ module reg_bank(
   input [2:0] ALU_ctrl,
   input MemtoReg,
   input MemWren,
+  output I_CTRL,
+  output R_CTRL,
+  output JL,
   input clk,
   input reset
 );
@@ -137,6 +153,16 @@ module reg_bank(
   register MemWren_RF_EX(.q(MemWren1), .d(MemWren0), .wrenable(en), .clk(clk));
   register MemWren_EX_MEM(.q(MemWren2), .d(MemWren1), .wrenable(en), .clk(clk));
   register MemWren_MEM_WB(.q(MemWren_ready), .d(MemWren2), .wrenable(en), .clk(clk));
+
+  register R_CTRL_IF_RF(.q(R_CTRL_ready), .d(R_CTRL), .wrenable(en), .clk(clk));
+
+  register I_CTRL_IF_RF(.q(I_CTRL_ready), .d(I_CTRL), .wrenable(en), .clk(clk));
+
+  wire JL0, JL1, JL2;
+  register JL_IF_RF(.q(JL0), .d(JL), .wrenable(en), .clk(clk));
+  register JL_RF_EX(.q(JL1), .d(JL0), .wrenable(en), .clk(clk));
+  register JL_EX_MEM(.q(JL2), .d(JL1), .wrenable(en), .clk(clk));
+  register JL_MEM_WB(.q(JL_ready), .d(JL2), .wrenable(en), .clk(clk));
 
 
 endmodule

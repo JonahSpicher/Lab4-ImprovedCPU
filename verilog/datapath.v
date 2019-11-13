@@ -9,6 +9,7 @@ module datapath(
   output [31:0] memIn,          // For memory stores
   output [31:0] res,             // ALU result
   input [4:0] rt,
+  input [4:0] rt_write,
   input [4:0] rs,
   input [4:0] rd,
   input Wren,
@@ -31,7 +32,7 @@ register32 A_RF_EX(.q(A_in), .d(A_data), .wrenable(1'd1), .clk(clk), .reset(rese
 
 
 fancymux regfile_writedata(.out(reg_data), .address(jl), .input0(data_loop), .input1(PC+1));
-fancymux #(5) regfile_writeaddr(.out(regwrite_addr), .address(R_command), .input0(rt), .input1(rd));
+fancymux #(5) regfile_writeaddr(.out(regwrite_addr), .address(R_command), .input0(rt_write), .input1(rd));
 
 sign_extend extender(.extended(imm_se), .short(imm));
 
