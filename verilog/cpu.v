@@ -52,6 +52,7 @@ wire [31:0] memIn, memAddr;
 wire [31:0] instr;
 wire [31:0] memOut;
 wire MEMWREN_ready;
+// put forwardAE and forwardBE on a delay ?
 
 memory Mem(.PC({PC[29:0], 2'b0}), .instruction(instr), .data_out(memOut), .data_in(memIn), .data_addr(memAddr), .clk(clk), .wr_en(MEMWREN_ready));
 
@@ -109,6 +110,8 @@ module reg_bank(
   input clk,
   input reset
 );
+  // Add extra registers for three above forwarding
+  //output stages of writeenable and regwrite for forwarding controls
   reg en = 1;
   wire [31:0] PC_1, PC_2, PC_3;
   register32 PC_IF_RF(.q(PC_1), .d(PC), .wrenable(en), .clk(clk), .reset(reset));
