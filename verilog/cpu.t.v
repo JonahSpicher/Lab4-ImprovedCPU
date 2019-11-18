@@ -46,10 +46,10 @@ module cpu_test ();
 
 
 
-      //$readmemh("../asm-in-use/mult.dat", real_cpu.Mem.mem);
-      $readmemh("../randomInstr.dat", real_cpu.Mem.mem);
-      //$display("\nTest 1: Multiply (Basic arithmetic, branching, jumps)");
-      $display("Just running some stuff actually");
+      $readmemh("../asm-in-use/mult.dat", real_cpu.Mem.mem);
+      //$readmemh("../randomInstr.dat", real_cpu.Mem.mem);
+      $display("\nTest 1: Multiply (Basic arithmetic, branching, jumps)");
+      //$display("Just running some stuff actually");
 
 
 
@@ -57,6 +57,7 @@ module cpu_test ();
 
       # 300 if (!test_triggered1) begin
         $display("Timed out, moving to next test");
+        dutpassed = 0;
       end
 
       $readmemh("../asm-in-use/lcm.dat", real_cpu.Mem.mem);
@@ -73,6 +74,7 @@ module cpu_test ();
 
       # 300 if (!test_triggered2) begin
         $display("Timed out, moving to next test");
+        dutpassed = 0;
       end
 
 
@@ -91,6 +93,7 @@ module cpu_test ();
 
     # 5000 if (!t3_4) begin
       $display("Timed out, finished.");
+      dutpassed = 0;
     end
 
    if (test_failed1 || test_failed2 || test_failed3) begin

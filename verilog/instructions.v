@@ -6,7 +6,6 @@ module instructPart(
   input enable,
   input Clk,
   input[31:0] imm_se,
-  input zero,
   input beq,
   input bne,
   input jctrl,
@@ -14,18 +13,31 @@ module instructPart(
   input jl,
   input[31:0] jr,
   input [31:0] instruct,
+  input [31:0] B,
   input reset
 );
-// todo: Make it pipelined, get stall inputs 
+// todo: Make it pipelined, get stall inputs
 
 wire[31:0] intermediate; //intermediate wire
 
 register32 PC(.q (ProgramCounter), .d (intermediate), .wrenable (enable), .clk(Clk), .reset(reset));
 
 wire branchSel;
+reg zero;
 wire notZero;
 wire beqRes;
 wire bneRes;
+
+reg [31:0] res;
+always @(*) begin
+  res = jr - B;
+  if (res === 0) begin
+    zero = 1;
+  end
+  else begin
+  zero = 0;
+  end
+end
 
 //branch parts
 and andgateBEQ(beqRes, beq, zero);

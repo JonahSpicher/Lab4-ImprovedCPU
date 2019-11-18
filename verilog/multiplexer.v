@@ -23,6 +23,8 @@ A simple 2 bit multiplexer.
 
 endmodule
 
+
+
 module Multiplexer8bit // Used by the ALU
 (
   output out,
@@ -66,6 +68,20 @@ input [width-1:0] input1
   assign out = address ? input1 : input0;
 endmodule
 
+module Multiplexer4input
+(
+    output [31:0] out,
+    input [1:0] address,
+    input [31:0] input0, input1, input2, input3
+);
+  wire[3:0] mux[31:0];			// Create a 2D array of wires
+  assign mux[0] = input0;   // I tried to do this with a generate loop and I could not get it to work
+  assign mux[1] = input1;
+  assign mux[2] = input2;
+  assign mux[3] = input3;
+  assign out = mux[address];	// Connect the output of the array
+
+endmodule
 
 module mux32to1by32 // Used by regfile
 (
