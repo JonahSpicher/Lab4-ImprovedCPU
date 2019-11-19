@@ -9,7 +9,7 @@ November 2019<br>
 
 The main change to the design was the addition of the register bank. This broke the CPU into five stages: instruction fetch, register fetch, execute, memory, and write back (in order). An instruction is parsed in the IF stage, accesses the register files in the RF stage, runs through the ALU in execute, accesses memory in MEM, and finally writes back to the register file in WB. After the first instruction passes through to WB, each stage always contains data pertaining to an instruction until the end of the program. 
 
-In order to facilitate this pipeline, a series of registers separate each stage. Data from each read port enters a register where it waits for one clock cycle before being sent to the ALU. There, the ALU operation occurs and the output waits another clock cycle before continuing to memory, and so on. All controls were filtered through a large bank of registers in order to deliver them to their targets when the correct data was in place. 
+In order to facilitate this pipeline, a series of registers separate each stage. Data from each read port enters a register where it waits for one clock cycle before being sent to the ALU. There, the ALU operation occurs and the output waits another clock cycle before continuing to memory, and so on. All controls were filtered through a large bank of registers in order to deliver them to their targets when the correct data was in place, where they are denoted as [control name]\_ready. 
 
 Numerous edge cases and hazards result from using this architecture. We attempted to address them, as explained below:
 
