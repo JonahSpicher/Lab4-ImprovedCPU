@@ -28,7 +28,11 @@ module LUT (
   input[5:0] OP,
   input [5:0] FUNCT
 );
-
+/*
+This module parses instructions to output the controls for the CPU. It uses
+behavioral verilog and is triggered whenever OP or FUNCT change (it cant just be one,
+or problems happen).
+*/
 always @(OP or FUNCT) begin
   case(OP)
   `LW: begin

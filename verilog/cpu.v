@@ -1,26 +1,22 @@
 `define ADD 011101
 
 `include "instructions.v"
-//`include "datapath.v"
 `include "LUT.v"
 `include "memory.v"
-// Todo:
 
-// Preliminary test without stalling or forwarding
-// Full testing
-// Report
-// Maybe new test benches if necessary (testing specific pipeline stuff)
-
-// Problems:
-// Branch sends to the wrong place
-// B data is always zero and it doesnt make sense
-// B data being zero causes the branch check to be wrong, but even in this case it should not go to 11.
 
 
 module CPU(
   input clk,
   input reset
 );
+/*
+This module combines several other modules and contains no actual logic other than
+two multiplexers. Basically it just connects memory, datapath, instructions,
+the register bank, the instruction parsing LUT, and forward controls.
+
+Note that this file also contains another module, the register bank.
+*/
 
 // from instructPart
 wire[4:0] RT;
@@ -57,6 +53,8 @@ wire [31:0] memOut;
 wire MEMWREN_ready, load_stall;
 
 memory Mem(.PC({PC[29:0], 2'b0}), .instruction(instr), .data_out(memOut), .data_in(memIn), .data_addr(memAddr), .clk(clk), .wr_en(MEMWREN_ready));
+
+
 wire [31:0] B;
 wire jr_ctrl_ready, beq_ready, bne_ready;
 wire [31:0] data_loop;

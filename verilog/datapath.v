@@ -29,20 +29,21 @@ module datapath(
   input reset,
   input load_stall
 );
-// todo: add pipeline_ctrl module, outputs and inputs, make it pipelined
 wire [31:0] reg_data,  A_in;
 wire zero;
+
+// Register file. Outputs got to registers to delay until EX stage.
 regfile reg_mem(.ReadData1(A_data), .ReadData2(B_data), .WriteData(reg_data), .ReadRegister1(rs), .ReadRegister2(rt), .WriteRegister(regwrite_addr), .RegWrite(Wren), .Clk(clk), .reset(reset));
 register32 A_RF_EX(.q(A_in), .d(A_data), .wrenable(load_stall), .clk(clk), .reset(reset));
 
 
-fancymux regfile_writedata(.out(reg_data), .address(jl), .input0(data_loop), .input1(PC+1));
-fancymux #(5) regfile_writeaddr(.out(regwrite_addr), .address(R_command), .input0(rt_write), .input1(rd));
+fancymux regfile_writedata(.out(reg_data), .address(jl), .input0(data_loop), .input1(PC+1)); //For JaL
+fancymux #(5) regfile_writeaddr(.out(regwrite_addr), .address(R_command), .input0(rt_write), .input1(rd)); // Write input is either RD or RT depending on instruction
 
 sign_extend extender(.extended(imm_se), .short(imm));
 
 wire [31:0] sel_b, B_in;
-fancymux alu_inputb(.out(sel_b), .address(I_command), .input0(B_data), .input1(imm_se));
+fancymux alu_inputb(.out(sel_b), .address(I_command), .input0(B_data), .input1(imm_se)); //Chooses either immediate or Reg[RT]
 
 register32 B_RF_EX(.q(B_in), .d(sel_b), .wrenable(load_stall), .clk(clk), .reset(reset));
 
@@ -52,9 +53,11 @@ register32 MemIn_EX_MEM(.q(memIn), .d(memIn_stored), .wrenable(1'd1), .clk(clk),
 
 wire [31:0] calc_res;
 wire [31:0] late_input, ALU_in1, ALU_in2;
+//Forwarding multiplexers
 Multiplexer4input Aforward_sel(.out(ALU_in1), .address(forwardAE), .input0(A_in), .input1(late_input), .input2(data_loop), .input3(res));
 Multiplexer4input Bforward_sel(.out(ALU_in2), .address(forwardBE), .input0(B_in), .input1(late_input), .input2(data_loop), .input3(res));
 
+//Execute stage, does its math
 ALU alu(.result(calc_res), .carryout(c_out), .zero(zero), .overflow(ofl), .operandA(ALU_in1), .operandB(ALU_in2), .command(ALUctrl));
 register32 Res_EX_MEM(.q(res), .d(calc_res), .wrenable(1'd1), .clk(clk), .reset(reset));
 
@@ -72,6 +75,9 @@ module sign_extend
   output reg [31:0] extended,
   input [15:0] short
 );
+/*
+Pretty simple, does sign extending.
+*/
 always @(*) begin
   extended[31:0] <= { {16{short[15]}}, short[15:0] };
 end

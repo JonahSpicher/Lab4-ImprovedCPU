@@ -3,7 +3,6 @@ addi $t1, $zero, 4 # initial b value
 
 add $t2, $zero, $t0 # sets a, will change
 add $t3, $zero, $t1 # sets b, will change 
-
 while:
 beq $t2, $t3, exit # once the two are equal, stop 
 addi $zero, $zero, 0 #NO OP	#9 (36)
