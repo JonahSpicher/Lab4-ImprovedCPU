@@ -5,11 +5,17 @@ module register
 output reg	q,
 input		d,
 input		wrenable,
-input		clk
+input		clk,
+input reset
 );
-
+    initial begin
+      q = 0; //maybe really bad
+    end
     always @(posedge clk) begin
-        if(wrenable) begin
+        if(reset) begin
+          q <= 0;
+        end
+        else if(wrenable) begin
             q <= d;
         end
     end

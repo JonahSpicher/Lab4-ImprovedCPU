@@ -14,23 +14,32 @@ module instructPart(
   input[31:0] jr,
   input [31:0] instruct,
   input [31:0] B,
+  input [31:0] mem_stage,
+  input [31:0] data_loop,
+  input [1:0] branchforwardA,
+  input [1:0] branchforwardB,
+  input load_stall,
   input reset
 );
 // todo: Make it pipelined, get stall inputs
 
 wire[31:0] intermediate; //intermediate wire
 
-register32 PC(.q (ProgramCounter), .d (intermediate), .wrenable (enable), .clk(Clk), .reset(reset));
+register32 PC(.q (ProgramCounter), .d (intermediate), .wrenable (!load_stall), .clk(Clk), .reset(reset));
 
 wire branchSel;
 reg zero;
 wire notZero;
 wire beqRes;
 wire bneRes;
+wire [31:0] B_in, A_in ;
+
+Multiplexer4input Abranch_forward(.out(A_in), .address(branchforwardA), .input0(jr), .input1(mem_stage), .input2(data_loop), .input3(32'd0));
+Multiplexer4input Bbranch_forward(.out(B_in), .address(branchforwardB), .input0(B), .input1(mem_stage), .input2(data_loop), .input3(32'd0));
 
 reg [31:0] res;
 always @(*) begin
-  res = jr - B;
+  res = A_in - B_in;
   if (res === 0) begin
     zero = 1;
   end
@@ -46,11 +55,14 @@ and andgateBNE(bneRes, bne, notZero);
 or orgate(branchSel, beqRes, bneRes);
 
 wire[31:0] branchInput;
-fancymux #(32) mux1(.out (branchInput), .address (branchSel), .input0 (32'b0), .input1 (imm_se));
+reg [31:0] in0 = 32'd1;
+fancymux #(32) mux1(.out (branchInput), .address (branchSel), .input0 (in0), .input1 (imm_se));
 
 //Adder
-wire[31:0] sum;
-assign sum = ProgramCounter + branchInput + 1;
+reg[31:0] sum;
+always @(*) begin
+  sum = ProgramCounter + branchInput;
+end
 
 //jump parts
 wire[31:0] jumpOutput;

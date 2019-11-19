@@ -4,12 +4,12 @@ module datapath(
   output [31:0] A_data,   //For jr
   output [31:0] B_data,
   output [31:0] imm_se,   // Sign Extended Immediate
-  output zero,            // Zeros from ALU
   output c_out,           // Carryout from ALU
   output ofl,             // Overflow from ALU
   output [31:0] memIn,          // For memory stores
   output [31:0] res,             // ALU result
   output [4:0] regwrite_addr,
+  output [31:0] data_loop,
   input [4:0] rt,
   input [4:0] rt_write,
   input [4:0] rs,
@@ -30,7 +30,8 @@ module datapath(
   input load_stall
 );
 // todo: add pipeline_ctrl module, outputs and inputs, make it pipelined
-wire [31:0] reg_data, data_loop, A_in;
+wire [31:0] reg_data,  A_in;
+wire zero;
 regfile reg_mem(.ReadData1(A_data), .ReadData2(B_data), .WriteData(reg_data), .ReadRegister1(rs), .ReadRegister2(rt), .WriteRegister(regwrite_addr), .RegWrite(Wren), .Clk(clk), .reset(reset));
 register32 A_RF_EX(.q(A_in), .d(A_data), .wrenable(load_stall), .clk(clk), .reset(reset));
 

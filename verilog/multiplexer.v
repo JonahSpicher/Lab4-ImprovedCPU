@@ -74,7 +74,7 @@ module Multiplexer4input
     input [1:0] address,
     input [31:0] input0, input1, input2, input3
 );
-  wire[3:0] mux[31:0];			// Create a 2D array of wires
+  wire[31:0] mux[3:0];			// Create a 2D array of wires
   assign mux[0] = input0;   // I tried to do this with a generate loop and I could not get it to work
   assign mux[1] = input1;
   assign mux[2] = input2;
