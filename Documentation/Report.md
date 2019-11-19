@@ -5,7 +5,7 @@ November 2019<br>
 
 ## Block Diagram and Description of Changes
 <br>
-<img src="CPU.jpg" width="100%" height="400">
+<img src="Piped_BlockDiagram.png" width="100%" height="500">
 
 The main change to the design was the addition of the register bank. This broke the CPU into five stages: instruction fetch, register fetch, execute, memory, and write back (in order). An instruction is parsed in the IF stage, accesses the register files in the RF stage, runs through the ALU in execute, accesses memory in MEM, and finally writes back to the register file in WB. After the first instruction passes through to WB, each stage always contains data pertaining to an instruction until the end of the program. 
 
@@ -34,7 +34,7 @@ As before, we tested our CPU using three (modified) programs: Multiply.asm, LCM.
 
 We first tested the cpu with Multiply.asm. No ops were added after branching due to the delayed branching "feature" (and no real opportunity to use delayed branching in such a straightforward program). This program was instrumental in revealing a huge assortment of issues with forwarding and branching. It runs successfully on our CPU.
 
-The second test (LCM)  was slightly more complicated, involving the SLT instruction as well as more looping and a greater number of instructions. While for the single cycle CPU it provided no real additional challenge, it presented a huge hurdle for our pipelined CPU, because it contained edge cases for branch forwarding we had not considered. This proved to be too great a challenge to solve by the time it was discovered, but we are confident that these issues are one of very few (if not the only ones) remaining in our implementation. If one No Op line are added before the beq line in the example pasted above, the code works as expected, and produces the correct result.
+The second test (LCM)  was slightly more complicated, involving the SLT instruction as well as more looping and a greater number of instructions. While for the single cycle CPU it provided no real additional challenge, it presented a huge hurdle for our pipelined CPU, because it contained edge cases for branch forwarding we had not considered. This proved to be too great a challenge to solve by the time it was discovered, but we are confident that these issues are one of very few (if not the only ones) remaining in our implementation. If one No Op line is added before the beq line in the example pasted above, the code works as expected, and produces the correct result.
 
 Because LCM was unsuccessful, we did not get around to successfully testing exp.asm on our pipelined cpu. Technically the test bench runs the code, but we have not inspected the results, only seen that the program counter is set too high for memory, and an error is thrown. Also, exp.asm has not yet been fully edited to account for delayed branching, so it is not expected to work as is. 
 
